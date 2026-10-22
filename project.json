@@ -1,0 +1,18 @@
+{
+	"name":	"LuduvoPlace",
+	"next_row":	"0000000000000003",
+	"assets":	{
+		"2400000000000001":	{
+			"type":	"script",
+			"path":	"scripts/PaintingManager.server.lua",
+			"checksum":	"fnv1a:a358453f6219635e",
+			"uploaded":	false
+		},
+		"2400000000000002":	{
+			"type":	"script",
+			"path":	"scripts/PaintingManager.client.lua",
+			"checksum":	"fnv1a:3989e23cb0d70beb",
+			"uploaded":	false
+		}
+	}
+}
