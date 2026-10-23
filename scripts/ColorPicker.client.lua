@@ -1,10 +1,10 @@
-
 local Logger = require("./Logger.client")()
 
 local root = game.World:FindFirstChild("Core"):FindFirstChild("PaintingManager")
 local runtimeobjects = root:FindFirstChild("RuntimeObjects")
 
 local gui = self.Parent.Parent
+local pixelTimer = self.Parent:FindFirstChild("PixelTimer")
 
 local highlight = Instance.new("Part")
 highlight.Name = "PixelHighlight"
@@ -35,7 +35,9 @@ local deleteMode = false
 local deleteDragging = false
 local dragStartX, dragStartZ
 local dragEndX, dragEndZ
-local lastXDown = false
+local lastEyedropPixel
+local lastPaintTime
+local pixelCooldownSeconds = 60
 
 local ET = game.EventTable
 
@@ -46,6 +48,26 @@ local pixelInput = ET("pixelInput", ET.ToServer, {
 local clearPixel = ET("clearPixel", ET.ToServer, {
     {"data", ET.String}
 })
+
+local function updatePixelTimer()
+    if not pixelTimer then
+        return
+    end
+
+    local remaining = 0
+
+    if lastPaintTime then
+        remaining = math.max(0, math.ceil(pixelCooldownSeconds - (os.clock() - lastPaintTime)))
+    end
+
+    if remaining <= 0 then
+        pixelTimer.Text = "Pixel Placement Available"
+    else
+        local minutes = math.floor(remaining / 60)
+        local seconds = remaining % 60
+        pixelTimer.Text = string.format("New Pixel In %02d:%02d", minutes, seconds)
+    end
+end
 
 local function getPixel()
     local origin, direction = game.Input.PointerRay()
@@ -98,10 +120,10 @@ local function setDeleteMode(enabled)
     end
 end
 
-
 function Update(dt)
-
     local color = Color3.fromHSV(self.Hue, self.Saturation, self.Brightness)
+
+    updatePixelTimer()
 
     if game.Input.KeyPressed(game.Input.Key.X) then
         setDeleteMode(not deleteMode)
@@ -109,6 +131,46 @@ function Update(dt)
 
     local x, z, instance = getPixel()
     hoveredX, hoveredZ = x, z
+
+    local zDown = game.Input.KeyDown(game.Input.Key.Z)
+
+    if zDown and instance then
+        local k = x .. ":" .. z
+
+        if lastEyedropPixel ~= k then
+            local pixelColor = instance.Color
+            local r, g, b = pixelColor.X, pixelColor.Y, pixelColor.Z
+
+            local maxValue = math.max(r, g, b)
+            local minValue = math.min(r, g, b)
+            local delta = maxValue - minValue
+
+            local hue = 0
+            local saturation = maxValue == 0 and 0 or delta / maxValue
+            local brightness = maxValue
+
+            if delta > 0 then
+                if maxValue == r then
+                    hue = ((g - b) / delta) % 6
+                elseif maxValue == g then
+                    hue = (b - r) / delta + 2
+                else
+                    hue = (r - g) / delta + 4
+                end
+
+                hue = hue / 6
+            end
+
+            self.Hue = hue
+            self.Saturation = saturation
+            self.Brightness = brightness
+
+            lastEyedropPixel = k
+            Logger.log("Eyedropped pixel:", k)
+        end
+    elseif not zDown then
+        lastEyedropPixel = nil
+    end
 
     if instance then
         highlight.Position = Vector3.new(
@@ -149,7 +211,9 @@ function Update(dt)
         leftClickToggle = true
 
         if hoveredX ~= nil and hoveredZ ~= nil then
-            if deleteMode then
+            if zDown then
+                return
+            elseif deleteMode then
                 deleteDragging = true
                 dragStartX, dragStartZ = hoveredX, hoveredZ
                 dragEndX, dragEndZ = hoveredX, hoveredZ
@@ -162,11 +226,12 @@ function Update(dt)
                     math.floor(color.B * 255 + 0.5)
 
                 pixelInput:Push(data)
+                lastPaintTime = os.clock()
                 Logger.log("Sent pixel:", data)
             else
                 Logger.log("Cannot paint: invalid color picker values")
             end
-        elseif not deleteMode then
+        elseif not deleteMode and not zDown then
             Logger.log("Cannot paint: no pixel selected")
         end
     end

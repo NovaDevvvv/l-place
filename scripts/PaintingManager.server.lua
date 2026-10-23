@@ -13,6 +13,7 @@ local queued = {}
 local positions = {}
 local pending = {}
 local writing = {}
+local pixelCooldowns = {}
 
 local boardSize = 250
 local chunkSize = 16
@@ -21,6 +22,7 @@ local refreshInterval = 3
 local saveInterval = 1
 local maxChunksPerUpdate = 2
 local authorizedClearUserId = 459
+local pixelCooldownSeconds = 60
 
 local store
 local loaded = false
@@ -311,6 +313,7 @@ local function removePlayer(player)
     end
 
     positions[player.UserId] = nil
+    pixelCooldowns[player.UserId] = nil
 end
 
 game.Players.PlayerAdded:Connect(addPlayer)
@@ -578,6 +581,16 @@ pixelInput.OnServerEvent:Connect(function(sender, data)
         return
     end
 
+    local now = os.clock()
+    local lastPaint = pixelCooldowns[sender.UserId]
+
+    if lastPaint and now - lastPaint < pixelCooldownSeconds then
+        local remaining = math.ceil(pixelCooldownSeconds - (now - lastPaint))
+        Logger.log("Paint cooldown:", remaining, "seconds remaining. UserId:", sender.UserId)
+        return
+    end
+
+    pixelCooldowns[sender.UserId] = now
     updatePixel(x, z, Color3.fromRGB(r, g, b), sender.UserId)
 
     Logger.log("Painted pixel:", x, z, r, g, b, "UserId:", sender.UserId)
@@ -673,7 +686,6 @@ function Update(dt)
         savePixels()
     end
 end
-
 
 clearPixel.OnServerEvent:Connect(function(sender, data)
     if sender.UserId ~= authorizedClearUserId then
