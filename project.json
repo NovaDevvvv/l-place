@@ -1,17 +1,41 @@
 {
-	"name":	"LuduvoPlace",
-	"next_row":	"0000000000000003",
+	"name":	"L_PLACE",
+	"next_row":	"0000000000000007",
 	"assets":	{
 		"2400000000000001":	{
 			"type":	"script",
-			"path":	"scripts/PaintingManager.server.lua",
-			"checksum":	"fnv1a:a358453f6219635e",
+			"path":	"scripts/PaintingManager.client.lua",
+			"checksum":	"fnv1a:976c1871052e395a",
 			"uploaded":	false
 		},
 		"2400000000000002":	{
 			"type":	"script",
-			"path":	"scripts/PaintingManager.client.lua",
-			"checksum":	"fnv1a:3989e23cb0d70beb",
+			"path":	"scripts/PaintingManager.server.lua",
+			"checksum":	"fnv1a:6bc77a966a0857ba",
+			"uploaded":	false
+		},
+		"2400000000000003":	{
+			"type":	"script",
+			"path":	"scripts/Logger.client.lua",
+			"checksum":	"fnv1a:1f43de8a2a91ea07",
+			"uploaded":	false
+		},
+		"2400000000000004":	{
+			"type":	"script",
+			"path":	"scripts/ColorPicker.client.lua",
+			"checksum":	"fnv1a:09da2e6ce6eb2fc1",
+			"uploaded":	false
+		},
+		"2400000000000005":	{
+			"type":	"script",
+			"path":	"scripts/Model.client.lua",
+			"checksum":	"fnv1a:17a8ec8353b93c71",
+			"uploaded":	false
+		},
+		"2400000000000006":	{
+			"type":	"script",
+			"path":	"scripts/Freecam.client.lua",
+			"checksum":	"fnv1a:034e2e9790ce3a09",
 			"uploaded":	false
 		}
 	}
