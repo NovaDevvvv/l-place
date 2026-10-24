@@ -1,6 +1,6 @@
 {
 	"name":	"L_PLACE",
-	"next_row":	"0000000000000007",
+	"next_row":	"0000000000000008",
 	"assets":	{
 		"2400000000000001":	{
 			"type":	"script",
@@ -36,6 +36,12 @@
 			"type":	"script",
 			"path":	"scripts/Freecam.client.lua",
 			"checksum":	"fnv1a:034e2e9790ce3a09",
+			"uploaded":	false
+		},
+		"2400000000000007":	{
+			"type":	"script",
+			"path":	"scripts/EyedropperMouse.client.lua",
+			"checksum":	"fnv1a:78b9003ad3039f22",
 			"uploaded":	false
 		}
 	}
